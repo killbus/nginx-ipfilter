@@ -1,0 +1,15 @@
+---
+version: "2"
+
+services:
+  ipfilter_tw:
+    container_name: ipfilter_tw
+    build:
+      context: .
+      args:
+        - MAXMIND_LICENSE_KEY=xxx
+    ports:
+      - "127.0.0.1:80:8080"
+    volumes:
+      - ./nginx/conf.d/ipfilter.conf:/etc/nginx/conf.d/ipfilter.conf:ro
+    restart: unless-stopped

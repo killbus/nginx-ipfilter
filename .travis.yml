@@ -1,0 +1,32 @@
+dist: bionic
+
+git:
+  depth: 5
+
+language: minimal
+
+services:
+  - docker
+
+matrix:
+  include:
+    - env:
+        - task=gixy
+      before_script:
+        - docker pull yandex/gixy
+      script:
+        - docker run --rm -v $PWD/nginx:/etc/nginx yandex/gixy /etc/nginx/nginx.conf
+    - env:
+        - task=hadolint
+      before_script:
+        - docker pull hadolint/hadolint
+      script:
+        - docker run --rm -i -v $PWD/.hadolint.yml:/.hadolint.yml hadolint/hadolint < Dockerfile
+    - env:
+        - task="Docker build"
+      if: branch == master && (type != pull_request)
+      script:
+        - docker build --build-arg MAXMIND_LICENSE_KEY="$MAXMIND_LICENSE_KEY" -t ipinfo.tw:$TRAVIS_COMMIT .
+      after_success:
+        - docker system prune -f
+        - docker images
